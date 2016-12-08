@@ -23,7 +23,7 @@
           <img ng-src="{{croppedDataUrl}}" width="200px" />
         </div>
         <div class="col-xs-4" ng-show="_state==='loaded'" >
-          <img ng-src="{{modelCtrl.$modelValue.url}}" width="200px" />
+          <img ng-src="{{itemVal.url}}" width="200px" />
         </div>
         <a class="btn btn-success" ng-show="_state==='changed'" ng-click="upload(croppedDataUrl, picFile.name)">Upload</a> 
         <div class="col-xs-4">
