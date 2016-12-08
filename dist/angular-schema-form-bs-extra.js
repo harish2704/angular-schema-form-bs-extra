@@ -49,15 +49,21 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
       scope:    true,
       require:  'ngModel',
       link:     function (scope, element, attrs, ngModel) {
-        scope.modelCtrl = ngModel;
+
+        scope.$watch( attrs.ngModel, function(){
+          scope.itemVal = ngModel.$modelValue;
+          scope._state = ( scope.itemVal && Object.keys( scope.itemVal ).length ) ? 'loaded' : 'empty';
+        });
+
         scope.fieldName = scope.form.key[0];
         scope.picFile = null;
-        scope._state = Object.keys( ngModel.$modelValue ).length ? 'loaded' : 'empty';
         scope.$watch( 'picFile', function( newVal, old, scope ){
           if( newVal ){
             scope._state = 'changed';
           }
         });
+
+
 
         scope.upload = function (dataUrl, name) {
           Upload.upload({
@@ -66,8 +72,8 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
               file: Upload.dataUrltoBlob(dataUrl, name)
             },
           }).then(function (response) {
-            Object.assign( ngModel.$modelValue, response.data[0] );
-            scope._state = 'loaded';
+            ngModel.$setViewValue( response.data[0], 'change' );
+            ngModel.$commitViewValue();
           }, function (response) {
             if (response.status > 0) scope.errorMsg = response.status + ': ' + response.data;
           }, function (evt) {
