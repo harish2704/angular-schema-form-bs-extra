@@ -26,6 +26,7 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
       items.forEach( function(v){ arr.push(v); });
     }
     $scope.search = function(ref, str ){
+      if( str === ''){ str = $scope.model[$scope.form.key]; }
       if( $scope.form.isAsync ){
         bseDataSource.search( ref, str ).then( function( items ){
           fillArr( $scope.optionsData, items );
@@ -60,27 +61,37 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
         scope.$watch( 'picFile', function( newVal, old, scope ){
           if( newVal ){
             scope._state = 'changed';
+            scope.croppedDataUrl = URL.createObjectURL( newVal );
           }
         });
 
 
-
-        scope.upload = function (dataUrl, name) {
+        function _upload ( file ) {
           Upload.upload({
             url: '/upload?group=' + scope.form.groupName,
             data: {
-              file: Upload.dataUrltoBlob(dataUrl, name)
+              file: file,
             },
           }).then(function (response) {
-            ngModel.$setViewValue( response.data[0], 'change' );
-            ngModel.$commitViewValue();
+            if( ngModel.$modelValue ){
+              Object.assign( ngModel.$modelValue, response.data[0] );
+              scope._state = 'loaded';
+            } else {
+              ngModel.$setViewValue( response.data[0], 'change' );
+              ngModel.$commitViewValue();
+            }
           }, function (response) {
             if (response.status > 0) scope.errorMsg = response.status + ': ' + response.data;
           }, function (evt) {
             scope.progress = parseInt(100.0 * evt.loaded / evt.total);
           });
+        }
+
+        scope.upload = function( dataUrl, name ){
+          _upload( Upload.dataUrltoBlob( dataUrl, name ) );
         };
 
+        scope.uploadFile = _upload;
       }
     };
   } ]);
@@ -110,7 +121,7 @@ angular.module('asf.bs-extra').config(
       schemaFormDecoratorsProvider.defineAddOn(
         'bootstrapDecorator',
         'bse:fileupload',
-        'asf-bs-extra/fileupload.html',
+        'asf-bs-extra/fileupload-file.html',
         sfBuilderProvider.stdBuilders
       );
       schemaFormDecoratorsProvider.defineAddOn(
