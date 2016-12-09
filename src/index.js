@@ -66,6 +66,7 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
         scope.$watch( 'picFile', function( newVal, old, scope ){
           if( newVal ){
             scope._state = 'changed';
+            scope.objectUrl = URL.createObjectURL( newVal );
           }
         });
 

@@ -11,11 +11,19 @@
     <div class="{{form.fieldHtmlClass}}">
       <button class="btn btn-primary" ngf-select ng-model="picFile" accept="{{form.accept}}"> Select File</button>
       <div ngf-drop ng-model="picFile" ngf-pattern="{{form.accept}}" class="col-xs-4"  ng-show="_state==='changed'" > </div>
-      <div class="col-xs-4"  ng-if="isImage && _state==='changed'" >
-        <img ng-src="{{ URL.createObjectURL( picFile ) }}" width="200px" />
+      <div class="col-xs-4"  ng-show="_state==='changed'" >
+        <div class="thumbnail" ng-if="isImage" >
+          <img class="img-thumbnail"ng-src="{{ objectUrl }}" width="200px" />
+        </div>
+        <strong>{{ picFile.name }}</strong>
       </div>
       <div class="col-xs-4" ng-show="_state==='loaded'" >
-        <img ng-src="{{itemVal.url}}" width="200px" />
+        <div class="thumbnail" ng-if="isImage" >
+          <img class="img-thumbnail" ng-src="{{itemVal.url}}" width="200px" />
+        </div>
+        <a ng-href="{{ itemVal.url }}"> 
+          <strong>{{ itemVal.url }}</strong>
+        </a>
       </div>
       <a class="btn btn-success" ng-show="_state==='changed'" ng-click="uploadFile( picFile )">Upload</a> 
       <div class="col-xs-4">
