@@ -27,7 +27,12 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
     }
 
     $scope.search = function(ref, str ){
-      if( str === ''){ str = $scope.model[$scope.form.key]; }
+      if( str === '' ){
+        str = $scope.model[$scope.form.key];
+        if( !Array.isArray( str ) ){
+          str = [str];
+        }
+      }
       if( $scope.form.isAsync ){
         bseDataSource.search( ref, str ).then( function( items ){
           fillArr( $scope.optionsData, items );
@@ -84,7 +89,7 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
 
         function _upload ( file ) {
           Upload.upload({
-            url: '/upload?group=' + scope.form.groupName,
+            url: scope.$root.$thoolikaConfig.siteRoot + '/upload?group=' + scope.form.groupName,
             data: {
               file: file,
             },
