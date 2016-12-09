@@ -25,6 +25,7 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
       arr.splice(0);
       items.forEach( function(v){ arr.push(v); });
     }
+
     $scope.search = function(ref, str ){
       if( str === ''){ str = $scope.model[$scope.form.key]; }
       if( $scope.form.isAsync ){
@@ -51,19 +52,33 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
       require:  'ngModel',
       link:     function (scope, element, attrs, ngModel) {
 
+        scope.isImage = /image\//.test( scope.form.accept );
+        scope._state = 'empty';
+
+        scope.fieldName = scope.form.key[0];
+        scope.picFile = null;
+
         scope.$watch( attrs.ngModel, function(){
           scope.itemVal = ngModel.$modelValue;
           scope._state = ( scope.itemVal && Object.keys( scope.itemVal ).length ) ? 'loaded' : 'empty';
         });
 
-        scope.fieldName = scope.form.key[0];
-        scope.picFile = null;
         scope.$watch( 'picFile', function( newVal, old, scope ){
           if( newVal ){
             scope._state = 'changed';
-            scope.croppedDataUrl = URL.createObjectURL( newVal );
           }
         });
+
+
+        function setModelValue( ngModel, val ){
+          if( ngModel.$modelValue ){
+            Object.assign( ngModel.$modelValue, val );
+            scope._state = 'loaded';
+          } else {
+            ngModel.$setViewValue( val, 'change' );
+            ngModel.$commitViewValue();
+          }
+        }
 
 
         function _upload ( file ) {
@@ -73,13 +88,7 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
               file: file,
             },
           }).then(function (response) {
-            if( ngModel.$modelValue ){
-              Object.assign( ngModel.$modelValue, response.data[0] );
-              scope._state = 'loaded';
-            } else {
-              ngModel.$setViewValue( response.data[0], 'change' );
-              ngModel.$commitViewValue();
-            }
+            setModelValue( ngModel, response.data[0] );
           }, function (response) {
             if (response.status > 0) scope.errorMsg = response.status + ': ' + response.data;
           }, function (evt) {
@@ -90,11 +99,10 @@ angular.module( 'asf.bs-extra', ['ui.select', 'ui.bootstrap.datetimepicker', 'ng
         scope.upload = function( dataUrl, name ){
           _upload( Upload.dataUrltoBlob( dataUrl, name ) );
         };
-
         scope.uploadFile = _upload;
       }
     };
-  } ]);
+  }]);
 
 angular.module('asf.bs-extra').config(
   ['schemaFormDecoratorsProvider', 'sfBuilderProvider', 'schemaFormProvider', 'sfPathProvider',
